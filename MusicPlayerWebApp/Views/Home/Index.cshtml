@@ -1,0 +1,117 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="hero-content text-center">
+    <h1>Get Personalized Music</h1>
+    <p>Discover your sound. Find songs from Youtube and quickly import them to your collection.</p>
+    <a href ="@Url.Action("Login", "Account")" class="btn btn-primary">Login</a>
+    <a href="@Url.Action("Register", "Account")" class="btn btn-secondary">Sign Up</a>
+</div>
+
+<section class="features">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <img src="path_to_icon" alt="Feature 1" />
+                <h3>Create Your Playlists</h3>
+                <p>Create personalized playlists to suit any mood or occasion.</p>
+            </div>
+            <div class="col-md-4">
+                <img src="path_to_icon" alt="Feature 2" />
+                <h3>Discover New Artists</h3>
+                <p>Explore and discover new music from emerging artists.</p>
+            </div>
+            <div class="col-md-4">
+                <img src="path_to_icon" alt="Feature 3" />
+                <h3>High-Quality Audio</h3>
+                <p>Enjoy the best sound quality with our HD audio streams.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container feature-section">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <img src="path_to_img.jpg" alt="Detailed Feature Image" class="img-fluid" />
+        </div>
+        <div class="col-md-6">
+            <h2>Detailed Feature Title</h2>
+            <p>Detailed description of features.</p>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div id="featureCarousel" class="row flex-row flex-nowrap overflow-auto">
+        <div class="col-4">
+            <div class="card">
+                <img src="path_to_image1.jpg" class="card-img-top" alt="Feature 1">
+                <div class="card-body">
+                    <h5 class="card-title">Feature 1</h5>
+                    <p class="card-text">Description of feature 1.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card">
+                <img src="path_to_image2.jpg" class="card-img-top" alt="Feature 2">
+                <div class="card-body">
+                    <h5 class="card-title">Feature 2</h5>
+                    <p class="card-text">Description of feature 2.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card">
+                <img src="path_to_image2.jpg" class="card-img-top" alt="Feature 2">
+                <div class="card-body">
+                    <h5 class="card-title">Feature 2</h5>
+                    <p class="card-text">Description of feature 2.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card">
+                <img src="path_to_image2.jpg" class="card-img-top" alt="Feature 2">
+                <div class="card-body">
+                    <h5 class="card-title">Feature 2</h5>
+                    <p class="card-text">Description of feature 2.</p>
+                </div>
+            </div>
+        </div>
+        <!-- Add more cards as needed -->
+    </div>
+    <button class="btn btn-primary" onclick="scrollLeft()">Left</button>
+    <button class="btn btn-primary" onclick="scrollRight()">Right</button>
+</div>
+
+@section Scripts {
+    <script>
+        function scrollRight() {
+            let container = document.getElementById('featureCarousel');
+            sideScroll(container, 'right', 25, 300, 10);
+        };
+
+        function scrollLeft() {
+            let container = document.getElementById('featureCarousel');
+            sideScroll(container, 'left', 25, 300, 10);
+        };
+
+        function sideScroll(element, direction, speed, distance, step) {
+            let scrollAmount = 0;
+            var slideTimer = setInterval(function () {
+                if (direction === 'left') {
+                    element.scrollLeft -= step;
+                } else {
+                    element.scrollLeft += step;
+                }
+                scrollAmount += step;
+                if (scrollAmount >= distance) {
+                    window.clearInterval(slideTimer);
+                }
+            }, speed);
+        }
+    </script>
+}
