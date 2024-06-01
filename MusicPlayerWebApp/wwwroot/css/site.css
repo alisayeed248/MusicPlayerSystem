@@ -27,6 +27,54 @@ body {
 }
 
 .card {
-    display: inline-block;
-    width: 100%; /* Adjust based on your layout needs */
+    display: block;
+    width: 320px; /* Adjust based on your layout needs */
+    margin-bottom: 20px;
+    height: auto;
+}
+
+.card-img-container {
+    padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    position: relative;
+    width: 100%;
+    background: #f8f9fa; /* Light background for image container */
+}
+
+.card-img-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image covers the div without stretching */
+}
+
+
+
+
+.card-body {
+    background-color: #302f2f; /* Grey background for the text section */
+    color: white; /* Ensuring text is readable on grey background */
+    padding: 15px;
+    height: 150px; /* Fixed height for equal division */
+    box-sizing: border-box; /* Include padding in height calculation */
+    overflow-y: auto; /* Adds scroll to text if it overflows */
+}
+
+.card-text {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal; 
+}
+
+.scroll-button {
+    position: fixed;
+    right: 10px;
+    top: 50%;
+    z-index: 1000;
+    background-color: #f8f9fa;
+    border: none;
+    padding: 8px 16px;
+    cursor: pointer;
+    transform: translateY(-50%);
 }
