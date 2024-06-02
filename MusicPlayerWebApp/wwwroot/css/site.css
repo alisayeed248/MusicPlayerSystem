@@ -49,9 +49,6 @@ body {
     object-fit: cover; /* Ensures the image covers the div without stretching */
 }
 
-
-
-
 .card-body {
     background-color: #302f2f; /* Grey background for the text section */
     color: white; /* Ensuring text is readable on grey background */

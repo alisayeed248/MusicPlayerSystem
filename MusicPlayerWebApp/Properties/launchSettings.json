@@ -4,25 +4,16 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "https://localhost:3000",
-      "sslPort": 3000
+      "applicationUrl": "http://localhost:3000",
+      "sslPort": 44300
     }
   },
   "profiles": {
-    "http": {
+    "MusicPlayerWebApp": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "http://localhost:3000",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    "https": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": true,
-      "applicationUrl": "https://localhost:3000",
+      "applicationUrl": "http://localhost:44300",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
@@ -30,7 +21,8 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "applicationUrl": "http://localhost:3000",
+      "applicationUrl": "http://localhost:44300",
+      "sslPort": 44300,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
