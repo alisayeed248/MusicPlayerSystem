@@ -1,0 +1,18 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";  // Specifies the layout page
+}
+
+<h2>YouTube Video Fetcher</h2>
+<form method="post" action="/YouTube/Fetch">
+    <label for="videoQuery">Enter YouTube URL or search terms:</label>
+    <input type="text" id="videoQuery" name="videoQuery" required>
+    <button type="submit">Fetch Video</button>
+</form>
+
+<p>@ViewBag.Message</p>
