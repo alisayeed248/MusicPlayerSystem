@@ -23,6 +23,7 @@ body {
 
 #featureCarousel {
     overflow-x: auto;
+    padding-right: 20px;
     white-space: nowrap;
     scrollbar-width: none;
 }
