@@ -47,16 +47,20 @@
     <div id="featureCarousel" class="row flex-row flex-nowrap overflow-auto">
         <div class="col-4">
             <div class="card">
-                <img src="path_to_image1.jpg" class="card-img-top" alt="Feature 1">
+                <div class="card-img-container">
+                    <img src="~/images/IMG_0647.png" class="card-img-top" alt="Feature 1">
+                </div>
                 <div class="card-body">
                     <h5 class="card-title">Feature 1</h5>
-                    <p class="card-text">Description of feature 1.</p>
+                    <p class="card-text">Description of feature 1. Let's see in which direction this text expands.</p>
                 </div>
             </div>
         </div>
         <div class="col-4">
             <div class="card">
-                <img src="path_to_image2.jpg" class="card-img-top" alt="Feature 2">
+                <div class="card-img-container">
+                    <img src="path_to_image2.jpg" class="card-img-top" alt="Feature 2">
+                </div>
                 <div class="card-body">
                     <h5 class="card-title">Feature 2</h5>
                     <p class="card-text">Description of feature 2.</p>
@@ -65,7 +69,9 @@
         </div>
         <div class="col-4">
             <div class="card">
-                <img src="path_to_image2.jpg" class="card-img-top" alt="Feature 2">
+                <div class="card-img-container">
+                    <img src="path_to_image2.jpg" class="card-img-top" alt="Feature 2">
+                </div>
                 <div class="card-body">
                     <h5 class="card-title">Feature 2</h5>
                     <p class="card-text">Description of feature 2.</p>
@@ -74,7 +80,9 @@
         </div>
         <div class="col-4">
             <div class="card">
-                <img src="path_to_image2.jpg" class="card-img-top" alt="Feature 2">
+                <div class="card-img-container">
+                    <img src="path_to_image2.jpg" class="card-img-top" alt="Feature 2">
+                </div>
                 <div class="card-body">
                     <h5 class="card-title">Feature 2</h5>
                     <p class="card-text">Description of feature 2.</p>
@@ -84,7 +92,7 @@
         <!-- Add more cards as needed -->
     </div>
     <button class="btn btn-primary" onclick="scrollLeft()">Left</button>
-    <button class="btn btn-primary" onclick="scrollRight()">Right</button>
+    <button id ="scrollRightButton" class="scroll-button" onclick="scrollRight()">Right</button>
 </div>
 
 @section Scripts {
@@ -115,3 +123,4 @@
         }
     </script>
 }
+
