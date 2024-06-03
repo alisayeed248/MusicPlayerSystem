@@ -26,5 +26,9 @@
         <h3><a href="@ViewBag.VideoUrl">@ViewBag.Title</a></h3>
         <a href="@ViewBag.VideoUrl"><img src="@ViewBag.ThumbnailUrl" alt="Video Thumbnail"></a>
         <p>@ViewBag.Description</p>
+        <p>Views: @ViewBag.Views | Posted: @ViewBag.PublishedAt</p>
+        <h4>Channel: <a href="@ViewBag.ChannelUrl">@ViewBag.ChannelTitle</a></h4>
+        <img src="@ViewBag.ChannelIcon" alt="Channel Icon" style="width: 50px; height: 50px;">
+        <p>Subscribers: @ViewBag.Subscribers</p>
     </div>
 }
