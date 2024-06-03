@@ -4,6 +4,11 @@ namespace MusicPlayerWebApp.Controllers
 {
     public class YoutubeController : Controller
     {
+        private readonly string _apiKey;
+        public YoutubeController(IConfiguration configuration)
+        {
+            _apiKey = configuration["YouTubeApiKey"];
+        }
         public IActionResult Index()
         {
             return View();
@@ -14,6 +19,7 @@ namespace MusicPlayerWebApp.Controllers
         {
             if (string.IsNullOrWhiteSpace(videoQuery))
             {
+                ViewBag.message = "Please enter a valid query.";
                 return View("Index");
             }
 
@@ -22,5 +28,7 @@ namespace MusicPlayerWebApp.Controllers
             ViewBag.Message = $"Processed query: {videoQuery}";
             return View("Index");
         }
+
+        
     }
 }

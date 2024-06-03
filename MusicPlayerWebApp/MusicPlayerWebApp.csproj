@@ -6,4 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.68.0.3421" />
+  </ItemGroup>
+
 </Project>
