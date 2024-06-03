@@ -15,4 +15,16 @@
     <button type="submit">Fetch Video</button>
 </form>
 
-<p>@ViewBag.Message</p>
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <p>@ViewBag.Message</p>
+}
+
+@if(ViewBag.Title != null)
+{
+    <div>
+        <h3><a href="@ViewBag.VideoUrl">@ViewBag.Title</a></h3>
+        <a href="@ViewBag.VideoUrl"><img src="@ViewBag.ThumbnailUrl" alt="Video Thumbnail"></a>
+        <p>@ViewBag.Description</p>
+    </div>
+}
