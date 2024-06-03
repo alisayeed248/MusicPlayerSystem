@@ -23,12 +23,94 @@
 @if(ViewBag.Title != null)
 {
     <div>
-        <h3><a href="@ViewBag.VideoUrl">@ViewBag.Title</a></h3>
-        <a href="@ViewBag.VideoUrl"><img src="@ViewBag.ThumbnailUrl" alt="Video Thumbnail"></a>
-        <p>@ViewBag.Description</p>
+        <h3 class ="video-title"><a href="@ViewBag.VideoUrl" target="_blank">@ViewBag.Title</a></h3>
+        <a href="@ViewBag.VideoUrl" target="_blank"><img src="@ViewBag.ThumbnailUrl" alt="Video Thumbnail" class="video-thumbnail"></a>
+        <div id ="player"></div>
+        <script>
+            var tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+            var player;
+            function onYouTubeIframeAPIReady() {
+                player = new YT.Player('player', {
+                    height: '360',
+                    width: '640',
+                    videoId: '@ViewBag.VideoId',
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            }
+
+            function onPlayerReady(event) {
+                event.target.playVideo();
+            }
+
+            function onPlayerStateChange(event) {
+                if (event.data == YT.PlayerState.PLAYING) {
+                    setTimeout(() => {
+                        event.target.pauseVideo(); // Pause after a few seconds to show a high-quality frame
+                    }, 2000); // Adjust time as needed
+                }
+            }
+        </script>
+        <p class="video-description-short">@ViewBag.Description</p>
+        <button class="btn btn-primary toggle-description">Show More</button>
         <p>Views: @ViewBag.Views | Posted: @ViewBag.PublishedAt</p>
-        <h4>Channel: <a href="@ViewBag.ChannelUrl">@ViewBag.ChannelTitle</a></h4>
+        <h4>Channel: <a href="@ViewBag.ChannelUrl" target="_blank">@ViewBag.ChannelTitle</a></h4>
         <img src="@ViewBag.ChannelIcon" alt="Channel Icon" style="width: 50px; height: 50px;">
         <p>Subscribers: @ViewBag.Subscribers</p>
     </div>
+}
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleButton = document.querySelector('.toggle-description');
+            const description = document.querySelector('.video-description');
+            let isCollapsed = true;
+
+            toggleButton.addEventListener('click', function () {
+                if (isCollapsed) {
+                    description.style.display = 'block'; // Show full description
+                    description.style.maxHeight = 'none';
+                    description.style.overflow = 'visible';
+                    toggleButton.textContent = 'Show Less';
+                } else {
+                    description.style.display = '-webkit-box'; // Show partial description
+                    description.style.maxHeight = '4.5em'; // Adjust based on design needs
+                    description.style.overflow = 'hidden';
+                    toggleButton.textContent = 'Show More';
+                }
+                isCollapsed = !isCollapsed;
+            });
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .video-title {
+            font-size: 20px;
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            object-fit: cover;
+        }
+
+        .video-description {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 4.5em; /* Adjust this value based on font-size and line-height */
+        }
+    </style>
 }

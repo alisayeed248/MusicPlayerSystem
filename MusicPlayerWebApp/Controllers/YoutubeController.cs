@@ -92,7 +92,15 @@ namespace MusicPlayerWebApp.Controllers
             var videoRequest = youtubeService.Videos.List("snippet,contentDetails,statistics");
             videoRequest.Id = videoId;
             var response = await videoRequest.ExecuteAsync();
-            return response.Items.FirstOrDefault();
+            var video = response.Items.FirstOrDefault();
+            if (video != null)
+            {
+                string thumbnailUrl = video.Snippet.Thumbnails.Maxres?.Url
+                                      ?? video.Snippet.Thumbnails.Standard?.Url
+                                      ?? video.Snippet.Thumbnails.High.Url;
+                ViewBag.ThumbnailUrl = thumbnailUrl;
+            }
+            return video;
         }
 
         private async Task<Channel> GetChannelDetailsAsync(string channelId)
