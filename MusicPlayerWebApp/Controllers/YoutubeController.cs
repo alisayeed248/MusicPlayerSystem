@@ -37,10 +37,18 @@ namespace MusicPlayerWebApp.Controllers
                     var videoDetails = await GetVideoDetailsAsync(videoId);
                     if (videoDetails != null)
                     {
+                        var channelDetails = await GetChannelDetailsAsync(videoDetails.Snippet.ChannelId);
                         ViewBag.VideoUrl = $"https://www.youtube.com/watch?v={videoId}";
                         ViewBag.ThumbnailUrl = videoDetails.Snippet.Thumbnails.Default__.Url;
                         ViewBag.Title = videoDetails.Snippet.Title;
                         ViewBag.Description = videoDetails.Snippet.Description;
+                        ViewBag.Views = videoDetails.Statistics.ViewCount;
+                        ViewBag.PublishedAt = videoDetails.Snippet.PublishedAtDateTimeOffset;
+                        // ViewBag.PublishedAt = videoDetails.Snippet.PublishedAt;might be obsolete
+                        ViewBag.ChannelTitle = channelDetails.Snippet.Title;
+                        ViewBag.ChannelUrl = $"https://www.youtube.com/channel/{videoDetails.Snippet.ChannelId}";
+                        ViewBag.ChannelIcon = channelDetails.Snippet.Thumbnails.Default__.Url;
+                        ViewBag.Subscribers = channelDetails.Statistics.SubscriberCount;
                     }
                     else
                     {
@@ -84,6 +92,15 @@ namespace MusicPlayerWebApp.Controllers
             var videoRequest = youtubeService.Videos.List("snippet,contentDetails,statistics");
             videoRequest.Id = videoId;
             var response = await videoRequest.ExecuteAsync();
+            return response.Items.FirstOrDefault();
+        }
+
+        private async Task<Channel> GetChannelDetailsAsync(string channelId)
+        {
+            var youtubeService = CreateYouTubeService();
+            var channelRequest = youtubeService.Channels.List("snippet,statistics");
+            channelRequest.Id = channelId;
+            var response = await channelRequest.ExecuteAsync();
             return response.Items.FirstOrDefault();
         }
 
