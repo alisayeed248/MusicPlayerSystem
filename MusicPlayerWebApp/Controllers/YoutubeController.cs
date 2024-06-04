@@ -38,6 +38,7 @@ namespace MusicPlayerWebApp.Controllers
                     if (videoDetails != null)
                     {
                         var channelDetails = await GetChannelDetailsAsync(videoDetails.Snippet.ChannelId);
+                        ViewBag.VideoId = videoId;
                         ViewBag.VideoUrl = $"https://www.youtube.com/watch?v={videoId}";
                         ViewBag.ThumbnailUrl = videoDetails.Snippet.Thumbnails.Default__.Url;
                         ViewBag.Title = videoDetails.Snippet.Title;
