@@ -4,16 +4,19 @@ using Google.Apis.YouTube.v3.Data;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using System.Text.RegularExpressions;
+using MusicPlayerWebApp.Services;
 
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 namespace MusicPlayerWebApp.Controllers
 {
     public class YoutubeController : Controller
     {
-        private readonly string _apiKey;
-        public YoutubeController(IConfiguration configuration)
+        private readonly IYouTubeService _youTubeService;
+        public YoutubeController(IYouTubeService youTubeService)
         {
-            _apiKey = configuration["YouTubeApiKey"];
+
+            _youTubeService = youTubeService;
         }
         public IActionResult Index()
         {
@@ -34,22 +37,22 @@ namespace MusicPlayerWebApp.Controllers
                 if (isValidYouTubeUrl(videoQuery))
                 {
                     var videoId = ExtractVideoIdFromUrl(videoQuery);
-                    var videoDetails = await GetVideoDetailsAsync(videoId);
+                    var videoDetails = await _youTubeService.GetVideoDetailsAsync(videoId);
                     if (videoDetails != null)
                     {
-                        var channelDetails = await GetChannelDetailsAsync(videoDetails.Snippet.ChannelId);
+                        var channelDetails = await _youTubeService.GetChannelDetailsAsync(videoDetails.ChannelId);
                         ViewBag.VideoId = videoId;
                         ViewBag.VideoUrl = $"https://www.youtube.com/watch?v={videoId}";
-                        ViewBag.ThumbnailUrl = videoDetails.Snippet.Thumbnails.Default__.Url;
-                        ViewBag.Title = videoDetails.Snippet.Title;
-                        ViewBag.Description = videoDetails.Snippet.Description;
-                        ViewBag.Views = videoDetails.Statistics.ViewCount;
-                        ViewBag.PublishedAt = videoDetails.Snippet.PublishedAtDateTimeOffset;
+                        ViewBag.ThumbnailUrl = videoDetails.ThumbnailUrl;
+                        ViewBag.Title = videoDetails.Title;
+                        ViewBag.Description = videoDetails.Description;
+                        ViewBag.Views = videoDetails.Views;
+                        ViewBag.PublishedAt = videoDetails.PublishedAt;
                         // ViewBag.PublishedAt = videoDetails.Snippet.PublishedAt;might be obsolete
-                        ViewBag.ChannelTitle = channelDetails.Snippet.Title;
-                        ViewBag.ChannelUrl = $"https://www.youtube.com/channel/{videoDetails.Snippet.ChannelId}";
-                        ViewBag.ChannelIcon = channelDetails.Snippet.Thumbnails.Default__.Url;
-                        ViewBag.Subscribers = channelDetails.Statistics.SubscriberCount;
+                        ViewBag.ChannelTitle = channelDetails.ChannelTitle;
+                        ViewBag.ChannelUrl = $"https://www.youtube.com/channel/{videoDetails.ChannelId}";
+                        ViewBag.ChannelIcon = channelDetails.ChannelIcon;
+                        ViewBag.Subscribers = channelDetails.Subscribers;
                     }
                     else
                     {
@@ -58,15 +61,20 @@ namespace MusicPlayerWebApp.Controllers
                 }
                 else
                 {
-                    var searchResults = await SearchYoutubeAsync(videoQuery);
-                    if (searchResults.Any())
+                    var searchResults = await _youTubeService.SearchVideosAsync(videoQuery);
+                    if (searchResults != null)
                     {
-                        ViewBag.Message = $"Found {searchResults.Count} videos. Top result: {searchResults[0].Snippet.Title}";
+                        foreach (var searchResult in searchResults)
+                        {
+                            ViewBag.Message = $"Found {searchResults.Count()} videos. Top result: {searchResult.Title}";
+                            break;
+                        }
                     }
                     else
                     {
                         ViewBag.Message = "No results found.";
                     }
+                    
                 }
             }
             catch (Exception ex)
@@ -76,51 +84,6 @@ namespace MusicPlayerWebApp.Controllers
 
             return View("Index");
 
-        }
-
-        private YouTubeService CreateYouTubeService()
-        {
-            return new YouTubeService(new BaseClientService.Initializer
-            {
-                ApiKey = _apiKey,
-                ApplicationName = this.GetType().ToString()
-            });
-        }
-
-        private async Task<Video> GetVideoDetailsAsync(string videoId)
-        {
-            var youtubeService = CreateYouTubeService();
-            var videoRequest = youtubeService.Videos.List("snippet,contentDetails,statistics");
-            videoRequest.Id = videoId;
-            var response = await videoRequest.ExecuteAsync();
-            var video = response.Items.FirstOrDefault();
-            if (video != null)
-            {
-                string thumbnailUrl = video.Snippet.Thumbnails.Maxres?.Url
-                                      ?? video.Snippet.Thumbnails.Standard?.Url
-                                      ?? video.Snippet.Thumbnails.High.Url;
-                ViewBag.ThumbnailUrl = thumbnailUrl;
-            }
-            return video;
-        }
-
-        private async Task<Channel> GetChannelDetailsAsync(string channelId)
-        {
-            var youtubeService = CreateYouTubeService();
-            var channelRequest = youtubeService.Channels.List("snippet,statistics");
-            channelRequest.Id = channelId;
-            var response = await channelRequest.ExecuteAsync();
-            return response.Items.FirstOrDefault();
-        }
-
-        private async Task<List<SearchResult>> SearchYoutubeAsync(string query)
-        {
-            var youtubeService = CreateYouTubeService();
-            var searchListRequest = youtubeService.Search.List("snippet");
-            searchListRequest.Q = query;
-            searchListRequest.MaxResults = 10;
-            var searchListResponse = await searchListRequest.ExecuteAsync();
-            return searchListResponse.Items.ToList();
         }
 
         private bool isValidYouTubeUrl(string url)
