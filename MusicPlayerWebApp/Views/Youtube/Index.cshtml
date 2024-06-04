@@ -1,0 +1,124 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";  // Specifies the layout page
+}
+
+<h2>YouTube Video Fetcher</h2>
+<form method="post" action="/YouTube/Fetch">
+    <label for="videoQuery">Enter YouTube URL or search terms:</label>
+    <input type="text" id="videoQuery" name="videoQuery" required>
+    <button type="submit">Fetch Video</button>
+</form>
+
+@if (!string.IsNullOrEmpty(ViewBag.Message))
+{
+    <p>@ViewBag.Message</p>
+}
+
+@if (ViewBag.Title != null)
+{
+    <div>
+        <h3 class="video-title"><a href="@ViewBag.VideoUrl" target="_blank">@ViewBag.Title</a></h3>
+        <!-- <a href="@ViewBag.VideoUrl" target="_blank"><img src="@ViewBag.ThumbnailUrl" alt="Video Thumbnail" class="video-thumbnail"></a> -->
+        <div id="player"></div>
+        <script>
+            console.log("Creating YouTube API script tag");
+            var tag = document.createElement('script');
+            tag.src = "https://www.youtube.com/iframe_api";
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            console.log("YouTube API script tag inserted");
+
+            var player;
+            window.onYouTubeIframeAPIReady = function() {
+                console.log("Video ID from ViewBag:", '@ViewBag.VideoId');
+                player = new YT.Player('player', {
+                    height: '360',
+                    width: '640',
+                    videoId: '@ViewBag.VideoId',
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+                console.log("YouTube player initialized");
+            }
+
+            function onPlayerReady(event) {
+                console.log("Player Ready");
+                event.target.playVideo();
+            }
+
+            function onPlayerStateChange(event) {
+                console.log("Player State Changed", event.data);
+                if (event.data == YT.PlayerState.PLAYING) {
+                }
+            }
+        </script>
+        <p class="video-description">@ViewBag.Description</p>
+        <button class="btn btn-primary toggle-description">Show More</button>
+        <p>Views: @ViewBag.Views | Posted: @ViewBag.PublishedAt</p>
+        <h4>Channel: <a href="@ViewBag.ChannelUrl" target="_blank">@ViewBag.ChannelTitle</a></h4>
+        <img src="@ViewBag.ChannelIcon" alt="Channel Icon" style="width: 50px; height: 50px;">
+        <p>Subscribers: @ViewBag.Subscribers</p>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        console.log("DOM Content Loaded Listener Added");
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log("DOMContentLoaded event fired");
+            const toggleButton = document.querySelector('.toggle-description');
+            const description = document.querySelector('.video-description');
+            console.log("Elements selected:", { toggleButton, description });
+            let isCollapsed = true;
+
+            toggleButton.addEventListener('click', function () {
+                console.log("Toggle button clicked. Current state:", isCollapsed);
+                if (isCollapsed) {
+                    description.style.display = 'block'; // Show full description
+                    description.style.maxHeight = 'none';
+                    description.style.overflow = 'visible';
+                    toggleButton.textContent = 'Show Less';
+                } else {
+                    description.style.display = '-webkit-box'; // Show partial description
+                    description.style.maxHeight = '4.5em'; // Adjust based on design needs
+                    description.style.overflow = 'hidden';
+                    toggleButton.textContent = 'Show More';
+                }
+                isCollapsed = !isCollapsed;
+                console.log("Toggle state changed:", isCollapsed);
+            });
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .video-title {
+            font-size: 20px;
+        }
+
+        .video-thumbnail {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            object-fit: cover;
+        }
+
+        .video-description {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-height: 4.5em; /* Adjust this value based on font-size and line-height */
+        }
+    </style>
+}
