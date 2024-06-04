@@ -20,20 +20,23 @@
     <p>@ViewBag.Message</p>
 }
 
-@if(ViewBag.Title != null)
+@if (ViewBag.Title != null)
 {
     <div>
-        <h3 class ="video-title"><a href="@ViewBag.VideoUrl" target="_blank">@ViewBag.Title</a></h3>
-        <a href="@ViewBag.VideoUrl" target="_blank"><img src="@ViewBag.ThumbnailUrl" alt="Video Thumbnail" class="video-thumbnail"></a>
-        <div id ="player"></div>
+        <h3 class="video-title"><a href="@ViewBag.VideoUrl" target="_blank">@ViewBag.Title</a></h3>
+        <!-- <a href="@ViewBag.VideoUrl" target="_blank"><img src="@ViewBag.ThumbnailUrl" alt="Video Thumbnail" class="video-thumbnail"></a> -->
+        <div id="player"></div>
         <script>
+            console.log("Creating YouTube API script tag");
             var tag = document.createElement('script');
             tag.src = "https://www.youtube.com/iframe_api";
             var firstScriptTag = document.getElementsByTagName('script')[0];
             firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            console.log("YouTube API script tag inserted");
 
             var player;
-            function onYouTubeIframeAPIReady() {
+            window.onYouTubeIframeAPIReady = function() {
+                console.log("Video ID from ViewBag:", '@ViewBag.VideoId');
                 player = new YT.Player('player', {
                     height: '360',
                     width: '640',
@@ -43,21 +46,21 @@
                         'onStateChange': onPlayerStateChange
                     }
                 });
+                console.log("YouTube player initialized");
             }
 
             function onPlayerReady(event) {
+                console.log("Player Ready");
                 event.target.playVideo();
             }
 
             function onPlayerStateChange(event) {
+                console.log("Player State Changed", event.data);
                 if (event.data == YT.PlayerState.PLAYING) {
-                    setTimeout(() => {
-                        event.target.pauseVideo(); // Pause after a few seconds to show a high-quality frame
-                    }, 2000); // Adjust time as needed
                 }
             }
         </script>
-        <p class="video-description-short">@ViewBag.Description</p>
+        <p class="video-description">@ViewBag.Description</p>
         <button class="btn btn-primary toggle-description">Show More</button>
         <p>Views: @ViewBag.Views | Posted: @ViewBag.PublishedAt</p>
         <h4>Channel: <a href="@ViewBag.ChannelUrl" target="_blank">@ViewBag.ChannelTitle</a></h4>
@@ -68,12 +71,16 @@
 
 @section Scripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM Content Loaded Listener Added");
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log("DOMContentLoaded event fired");
             const toggleButton = document.querySelector('.toggle-description');
             const description = document.querySelector('.video-description');
+            console.log("Elements selected:", { toggleButton, description });
             let isCollapsed = true;
 
             toggleButton.addEventListener('click', function () {
+                console.log("Toggle button clicked. Current state:", isCollapsed);
                 if (isCollapsed) {
                     description.style.display = 'block'; // Show full description
                     description.style.maxHeight = 'none';
@@ -86,6 +93,7 @@
                     toggleButton.textContent = 'Show More';
                 }
                 isCollapsed = !isCollapsed;
+                console.log("Toggle state changed:", isCollapsed);
             });
         });
     </script>
