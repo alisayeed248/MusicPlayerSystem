@@ -60,6 +60,14 @@
                 }
             }
         </script>
+        <div>
+            <label for="startSlider">Start: <span id="startLabel">0:00</span></label>
+            <input type="range" id="startSlider" min="0" value="0" step="1">
+        </div>
+        <div>
+            <label for="endSlider">End: <span id="endLabel">0:00</span></label>
+            <input type="range" id="endSlider" min="0" value="0" step="1">
+        </div>
         <p class="video-description">@ViewBag.Description</p>
         <button class="btn btn-primary toggle-description">Show More</button>
         <p>Views: @ViewBag.Views | Posted: @ViewBag.PublishedAt</p>
