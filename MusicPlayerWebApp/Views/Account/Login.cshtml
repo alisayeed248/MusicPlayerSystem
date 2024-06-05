@@ -7,9 +7,13 @@
 <h2>Login</h2>
 <form id="loginForm">
     <label for="username">Username:</label>
-    <input type="text" id="username" name="username" />
+    <input type="text" id="username" name="username" required/>
     <label for="password">Password:</label>
-    <input type="password" id="password" name="password" />
+    <input type="password" id="password" name="password" required/>
+    <div id="newPasswordContainer" style="display: none;">
+        <label for="newPassword">New Password:</label>
+        <input type="password" id="newPassword" name="newPassword" />
+    </div>
     <button type="button" onclick="loginUser()">Login</button>
 </form>
 <div id="loginError" style="color: red;"></div>
@@ -19,6 +23,7 @@
     function loginUser() {
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
+        const newPassword = document.getElementById('newPassword').value;
         console.log('Username:', username, 'Password:', password); // Debug output
 
         fetch('/Account/Login', {
@@ -26,20 +31,24 @@
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify({ username, password, newPassword })
         })
         .then(response => response.json())
         .then(data => {
+            console.log('Response from server:', data);
             if (data.success) {
-                window.location.href = 'home'; // Redirect on successful login
+                window.location.href = '/YouTube'; // Redirect on successful login
             } else {
                 document.getElementById('loginError').textContent = data.message;
+                if (data.requireNewPassword) {
+                    document.getElementById('newPasswordContainer').style.display = 'block';
+                }
             }
         })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById('loginError').textContent = 'Login failed. Please try again.';
-                });
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('loginError').textContent = 'Login failed. Please try again.';
+        });
     }
     </script>
 }
