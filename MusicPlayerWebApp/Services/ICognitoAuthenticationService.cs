@@ -2,7 +2,7 @@
 
 namespace MusicPlayerWebApp.Services
 {
-    public interface IAuthenticationService
+    public interface ICognitoAuthenticationService
     {
         Task<UserSession> SignInAsync(string username, string password);
     }

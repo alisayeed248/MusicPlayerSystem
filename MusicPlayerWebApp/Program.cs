@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IYouTubeService, CustomYouTubeService>();
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<ICognitoAuthenticationService, CognitoAuthenticationService>();
 builder.Services.AddHttpsRedirection(options =>
 {
     options.HttpsPort = 44300;  // Specify the HTTPS port here
