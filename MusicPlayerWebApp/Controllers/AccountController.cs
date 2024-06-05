@@ -29,17 +29,26 @@ namespace MusicPlayerWebApp.Controllers
             _logger.LogInformation($"Received login attempt with username: {model.Username} and password: {model.Password}");
             try
             {
-                var session = await _authenticationService.SignInAsync(model.Username, model.Password);
+                UserSession session;
+                if (string.IsNullOrEmpty(model.newPassword))
+                {
+                    session = await _authenticationService.SignInAsync(model.Username, model.Password);
+                }
+                else
+                {
+                    session = await _authenticationService.SignInAsync(model.Username, model.Password, model.newPassword);
+                }
+            
                 return Json(new { success = true });
             }
-            catch (UnauthorizedAccessException ex)
+            catch (InvalidOperationException ex) when (ex.Message.Contains("New password is required"))
             {
-                _logger.LogError(ex, "Unauthorized access exception during login.");
-                return Json(new { success = false, message = "Invalid login attempt." });
+                _logger.LogInformation("New password is required to complete the sign-in process.");
+                return Json(new { success = false, message = "New password required.", requireNewPassword = true });
             }
             catch (Exception ex) {
-                _logger.LogError(ex, "Exception during login.");
-                return Json(new { success = false, message = ex.Message });
+                Console.WriteLine($"Exception during login: {ex}");
+                return Json(new { success = false, message = "Invalid login attempt." });
             }
         }
     }

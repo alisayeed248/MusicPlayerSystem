@@ -29,7 +29,7 @@ namespace MusicPlayerWebApp.Services
             _cognitoClient = new AmazonCognitoIdentityProviderClient(awsCredentials, RegionEndpoint.USEast1);
         }
 
-        public async Task<UserSession> SignInAsync(string username, string password)
+        public async Task<UserSession> SignInAsync(string username, string password, string newPassword)
         {
             var key = Encoding.UTF8.GetBytes(_clientSecret);
             var message = Encoding.UTF8.GetBytes(username + _clientId);
@@ -64,15 +64,58 @@ namespace MusicPlayerWebApp.Services
                     Console.WriteLine("Response received:");
                     Console.WriteLine($"ChallengeName: {response.ChallengeName}");
                     Console.WriteLine($"Session: {response.Session}");
+                    if (response.ChallengeName == "NEW_PASSWORD_REQUIRED")
+                    {
+                        Console.WriteLine("New password required to complete the sign-in process.");
+
+                        if (string.IsNullOrEmpty(newPassword))
+                        {
+                            throw new InvalidOperationException("New password is required to complete the sign-in process.");
+                        }
+
+                        var respondToNewPasswordChallengeRequest = new AdminRespondToAuthChallengeRequest
+                        {
+                            ChallengeName = response.ChallengeName,
+                            ClientId = _clientId,
+                            UserPoolId = _userPoolId,
+                            ChallengeResponses = new Dictionary<string, string>
+                            {
+                                {"USERNAME", username},
+                                {"NEW_PASSWORD", newPassword},
+                                {"SECRET_HASH", secretHash}
+                            },
+                            Session = response.Session
+                        };
+
+                        var challengeResponse = await _cognitoClient.AdminRespondToAuthChallengeAsync(respondToNewPasswordChallengeRequest);
+
+                        Console.WriteLine("Challenge response received:");
+                        if (challengeResponse.AuthenticationResult != null)
+                        {
+                            Console.WriteLine($"IdToken: {challengeResponse.AuthenticationResult.IdToken}");
+                            Console.WriteLine($"AccessToken: {challengeResponse.AuthenticationResult.AccessToken}");
+                            Console.WriteLine($"RefreshToken: {challengeResponse.AuthenticationResult.RefreshToken}");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Challenge AuthenticationResult is null.");
+                            throw new ApplicationException("Challenge AuthenticationResult is null.");
+                        }
+
+                        return new UserSession
+                        {
+                            IdToken = challengeResponse.AuthenticationResult.IdToken,
+                            AccessToken = challengeResponse.AuthenticationResult.AccessToken,
+                            RefreshToken = challengeResponse.AuthenticationResult.RefreshToken
+                        };
+                    }
+
                     if (response.AuthenticationResult == null)
                     {
                         Console.WriteLine("AuthenticationResult is null.");
                         throw new ApplicationException("AuthenticationResult is null.");
                     }
-                    Console.WriteLine($"IdToken: {response.AuthenticationResult.IdToken}");
-                    Console.WriteLine($"AccessToken: {response.AuthenticationResult.AccessToken}");
-                    Console.WriteLine($"RefreshToken: {response.AuthenticationResult.RefreshToken}");
-                    Console.WriteLine($"Test: {response.AuthenticationResult.RefreshToken}");
+
                     return new UserSession
                     {
                         IdToken = response.AuthenticationResult.IdToken,
