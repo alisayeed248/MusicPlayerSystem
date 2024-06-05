@@ -1,8 +1,11 @@
+using MusicPlayerWebApp.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
 
+builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<IYouTubeService, CustomYouTubeService>();
 builder.Services.AddHttpsRedirection(options =>
 {
     options.HttpsPort = 44300;  // Specify the HTTPS port here
