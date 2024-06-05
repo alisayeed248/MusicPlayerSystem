@@ -60,6 +60,10 @@
                 }
             }
         </script>
+        <div id="videoSliderContainer">
+            <div id="videoSlider"></div>
+            <p>Start: <span id="startLabel">0:00</span> | End: <span id="endLabel">0:00</span></p>
+        </div>
         <p class="video-description">@ViewBag.Description</p>
         <button class="btn btn-primary toggle-description">Show More</button>
         <p>Views: @ViewBag.Views | Posted: @ViewBag.PublishedAt</p>
@@ -70,32 +74,116 @@
 }
 
 @section Scripts {
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script>
-        console.log("DOM Content Loaded Listener Added");
-        document.addEventListener('DOMContentLoaded', function () {
-            console.log("DOMContentLoaded event fired");
-            const toggleButton = document.querySelector('.toggle-description');
-            const description = document.querySelector('.video-description');
-            console.log("Elements selected:", { toggleButton, description });
-            let isCollapsed = true;
+        var player;
 
-            toggleButton.addEventListener('click', function () {
-                console.log("Toggle button clicked. Current state:", isCollapsed);
-                if (isCollapsed) {
-                    description.style.display = 'block'; // Show full description
-                    description.style.maxHeight = 'none';
-                    description.style.overflow = 'visible';
-                    toggleButton.textContent = 'Show Less';
-                } else {
-                    description.style.display = '-webkit-box'; // Show partial description
-                    description.style.maxHeight = '4.5em'; // Adjust based on design needs
-                    description.style.overflow = 'hidden';
-                    toggleButton.textContent = 'Show More';
+        $(document).ready(function () {
+            $("#videoSlider").slider({
+                range: true,
+                min: 0,
+                max: 100, // This will be updated dynamically
+                values: [0, 100],
+                slide: function (event, ui) {
+                    $('#startLabel').text(formatTime(ui.values[0]));
+                    $('#endLabel').text(formatTime(ui.values[1]));
+
+                    var currentTime = player.getCurrentTime();
+
+                    if (ui.handleIndex === 0) {
+                        if (currentTime < ui.values[0]) {
+                            player.seekTo(ui.values[0], true);
+                        }
+                    } else if (ui.handleIndex === 1) {
+                        if (currentTime > ui.values[1]) {
+                            player.seekTo(ui.values[0], true);
+                        }
+                    }
                 }
-                isCollapsed = !isCollapsed;
-                console.log("Toggle state changed:", isCollapsed);
+            });
+
+            function initializeSliders() {
+                var duration = player.getDuration();
+                $("#videoSlider").slider("option", "max", duration);
+                $("#videoSlider").slider("option", "values", [0, duration]);
+                updateLabels();
+            }
+
+            function updateLabels() {
+                var values = $("#videoSlider").slider("values");
+                $('#startLabel').text(formatTime(values[0]));
+                $('#endLabel').text(formatTime(values[1]));
+            }
+
+            function formatTime(seconds) {
+                var mins = Math.floor(seconds / 60);
+                var secs = Math.floor(seconds % 60);
+                return mins + ':' + (secs < 10 ? '0' : '') + secs;
+            }
+
+            const toggleButton = $('.toggle-description');
+            const description = $('.video-description');
+
+            toggleButton.on('click', function () {
+                let isCollapsed = description.css('display') !== 'block';
+                if (isCollapsed) {
+                    description.css({
+                        display: 'block',
+                        maxHeight: 'none',
+                        overflow: 'visible'
+                    });
+                    toggleButton.text('Show Less');
+                } else {
+                    description.css({
+                        display: '-webkit-box',
+                        maxHeight: '4.5em',
+                        overflow: 'hidden'
+                    });
+                    toggleButton.text('Show More');
+                }
             });
         });
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '360',
+                width: '640',
+                videoId: '@ViewBag.VideoId',
+                events: {
+                    'onReady': function (event) {
+                        initializeSliders();
+                        event.target.playVideo();
+                    },
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                startMonitoring();
+            }
+        }
+
+        var monitorInterval;
+        function startMonitoring() {
+            if (monitorInterval) {
+                clearInterval(monitorInterval);
+            }
+            monitorInterval = setInterval(function () {
+                var currentTime = player.getCurrentTime();
+                var endTime = $("#videoSlider").slider("values")[1];
+                if (currentTime >= endTime) {
+                    player.seekTo($("#videoSlider").slider("values")[0], true);
+                }
+            }, 1000);
+        }
+
+        function stopMonitoring() {
+            if (monitorInterval) {
+                clearInterval(monitorInterval);
+            }
+        }
     </script>
 }
 
@@ -120,5 +208,23 @@
             text-overflow: ellipsis;
             max-height: 4.5em; /* Adjust this value based on font-size and line-height */
         }
+
+        #videoSlider .ui-slider-range {
+            background-color: darkgray; /* Darker grey for the range background */
+        }
+
+        #videoSlider .ui-slider-handle {
+            border-radius: 50%; /* Makes the handles circular */
+            background: red; /* Red color for visibility */
+            width: 20px; /* Width of the handle */
+            height: 20px; /* Height of the handle */
+            top: -6px; /* Adjust top position to align it center to the slider bar */
+        }
+
+        #videoSlider {
+            height: 0.8em; /* Height of the slider bar */
+            background: #CCC; /* Lighter grey background for the slider bar */
+        }
+
     </style>
 }
