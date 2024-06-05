@@ -5,10 +5,41 @@
 }
 
 <h2>Login</h2>
-<form method="post" action="@Url.Action("Login", "Account")">
+<form id="loginForm">
     <label for="username">Username:</label>
     <input type="text" id="username" name="username" />
     <label for="password">Password:</label>
     <input type="password" id="password" name="password" />
-    <button type="submit">Login</button>
+    <button type="button" onclick="loginUser()">Login</button>
 </form>
+<div id="loginError" style="color: red;"></div>
+
+@section Scripts {
+    <script>
+    function loginUser() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        console.log('Username:', username, 'Password:', password); // Debug output
+
+        fetch('/Account/Login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ username, password })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = 'home'; // Redirect on successful login
+            } else {
+                document.getElementById('loginError').textContent = data.message;
+            }
+        })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('loginError').textContent = 'Login failed. Please try again.';
+                });
+    }
+    </script>
+}
