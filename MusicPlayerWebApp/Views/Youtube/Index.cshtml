@@ -60,13 +60,9 @@
                 }
             }
         </script>
-        <div>
-            <label for="startSlider">Start: <span id="startLabel">0:00</span></label>
-            <input type="range" id="startSlider" min="0" value="0" step="1">
-        </div>
-        <div>
-            <label for="endSlider">End: <span id="endLabel">0:00</span></label>
-            <input type="range" id="endSlider" min="0" value="0" step="1">
+        <div id="videoSliderContainer">
+            <div id="videoSlider"></div>
+            <p>Start: <span id="startLabel">0:00</span> | End: <span id="endLabel">0:00</span></p>
         </div>
         <p class="video-description">@ViewBag.Description</p>
         <button class="btn btn-primary toggle-description">Show More</button>
@@ -103,6 +99,70 @@
                 isCollapsed = !isCollapsed;
                 console.log("Toggle state changed:", isCollapsed);
             });
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            var player; // This will be set when the YouTube Iframe API is ready and calls onYouTubeIframeAPIReady
+
+            $("#videoSlider").slider({
+                range: true,
+                min: 0,
+                max: 100, // Default max, this will be updated
+                values: [0, 100],
+                slide: function (event, ui) {
+                    // Update the labels
+                    $('#startLabel').text(formatTime(ui.values[0]));
+                    $('#endLabel').text(formatTime(ui.values[1]));
+
+                    // Optionally seek to the start position when moved
+                    if (player && ui.handleIndex === 0) {
+                        player.seekTo(ui.values[0], true);
+                    }
+                }
+            });
+
+            function initializeSliders() {
+                var duration = player.getDuration();
+                $("#videoSlider").slider("option", "max", duration);
+                $("#videoSlider").slider("option", "values", [0, duration]);
+                updateLabels();
+            }
+
+            function updateLabels() {
+                var values = $("#videoSlider").slider("values");
+                $('#startLabel').text(formatTime(values[0]));
+                $('#endLabel').text(formatTime(values[1]));
+            }
+
+            function formatTime(seconds) {
+                var mins = Math.floor(seconds / 60);
+                var secs = Math.floor(seconds % 60);
+                return mins + ':' + (secs < 10 ? '0' : '') + secs;
+            }
+
+            window.onYouTubeIframeAPIReady = function () {
+                player = new YT.Player('player', {
+                    height: '360',
+                    width: '640',
+                    videoId: '@ViewBag.VideoId',
+                    events: {
+                        'onReady': function (event) {
+                            initializeSliders();
+                            event.target.playVideo();
+                        },
+                        'onStateChange': function (event) {
+                            if (event.data == YT.PlayerState.PLAYING) {
+                                var currentTime = player.getCurrentTime();
+                                var values = $("#videoSlider").slider("values");
+                                if (currentTime > values[1]) {
+                                    player.seekTo(values[0], true);
+                                }
+                            }
+                        }
+                    }
+                });
+            };
         });
     </script>
 }
