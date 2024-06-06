@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MediaService.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MediaService.Services;
 using System.Threading.Tasks;
@@ -9,19 +10,19 @@ namespace MediaService.Controllers
     [ApiController]
     public class VideoDownloadController : ControllerBase
     {
-        private readonly VideoDownloadService _downloadService;
+        private readonly VideoDownloadService _videoDownloadService;
 
-        public VideoDownloadController(VideoDownloadService downloadService)
+        public VideoDownloadController(VideoDownloadService videoDownloadService)
         {
-            _downloadService = downloadService;
+            _videoDownloadService = videoDownloadService;
         }
 
         [HttpPost("download")]
-        public async Task<IActionResult> DownloadVideo([FromBody] string videoUrl)
+        public async Task<IActionResult> DownloadVideo([FromBody] VideoDownloadRequest request)
         {
             try
             {
-                var filePath = await _downloadService.DownloadVideoAsync(videoUrl);
+                var filePath = await _videoDownloadService.DownloadVideoAsync(request.VideoUrl);
                 return Ok(filePath);
             }
             catch(System.Exception ex)

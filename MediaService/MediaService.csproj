@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>8e56e425-0f76-449a-ab6f-3fdc453ce74a</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <BaseOutputPath>bin\Debug\Project1\</BaseOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,10 +16,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MusicPlayerWebApp\MusicPlayerWebApp.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\" />
   </ItemGroup>
 
 </Project>
