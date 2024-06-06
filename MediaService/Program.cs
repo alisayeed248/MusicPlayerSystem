@@ -2,8 +2,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MediaService.Services;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
+var httpsPort = builder.Configuration.GetValue<int?>("ASPNETCORE_HTTPS_PORT");
+//builder.Services.AddHttpsRedirection(options =>
+//{
+//    options.HttpsPort = httpsPort ?? 443;
+//});
 
 // Add services to the container.
 
@@ -22,7 +28,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

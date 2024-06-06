@@ -8,7 +8,8 @@ namespace MediaService.Services
         public async Task<string> DownloadVideoAsync(string videoUrl)
         {
             // we'll need to change the output path to be using S3
-            string outputPath = "path_to_save_downloaded_file";
+            string filename = $"{Guid.NewGuid()}.mp4";
+            string outputPath = Path.Combine("D:\\Sayeed\\Downloads", filename);
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
