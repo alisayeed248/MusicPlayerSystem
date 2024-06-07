@@ -20,11 +20,22 @@ namespace MediaService.Controllers
         [HttpPost("downloadMp4")]
         public async Task<IActionResult> DownloadMp4([FromBody] VideoDownloadRequest request)
         {
+            if (request == null)
+            {
+                return BadRequest( new { error = "Request body is null." });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.VideoUrl))
+            {
+                return BadRequest(new { error = "The videoUrl field is required." });
+            }
+
             try
             {
                 var filePath = await _videoDownloadService.DownloadVideoAsync(request.VideoUrl);
-                return Ok(filePath);
+                return Ok(new { filePath });
             }
+
             catch(System.Exception ex)
             {
                 return BadRequest(ex.Message);
