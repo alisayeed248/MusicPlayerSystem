@@ -79,6 +79,7 @@
 
 @section Scripts {
     <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script>
         var player;
 
@@ -187,6 +188,24 @@
             if (monitorInterval) {
                 clearInterval(monitorInterval);
             }
+        }
+
+        function downloadMp4() {
+            var videoUrl = $('#player').data('video-url');
+            fetch('http://localhost:5270/api/videodownload/downloadMp4', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ videoUrl: videoUrl })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    alert('MP4 download started: ' + data);
+                })
+                .catch(error => {
+                    console.error('Error: ', error);
+                });
         }
     </script>
 }
