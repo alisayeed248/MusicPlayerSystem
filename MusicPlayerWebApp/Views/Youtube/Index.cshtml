@@ -25,7 +25,7 @@
     <div>
         <h3 class="video-title"><a href="@ViewBag.VideoUrl" target="_blank">@ViewBag.Title</a></h3>
         <!-- <a href="@ViewBag.VideoUrl" target="_blank"><img src="@ViewBag.ThumbnailUrl" alt="Video Thumbnail" class="video-thumbnail"></a> -->
-        <div id="player"></div>
+        <div id="player" data-video-url="@ViewBag.VideoUrl"></div>
         <script>
             console.log("Creating YouTube API script tag");
             var tag = document.createElement('script');
@@ -191,16 +191,30 @@
         }
 
         function downloadMp4() {
-            var videoUrl = $('#player').data('video-url');
+            var videoUrl = document.getElementById('player').getAttribute('data-video-url');
+            console.log("Downloading MP4 for URL:", videoUrl);
+            var payload = JSON.stringify({ videoUrl: videoUrl });
+            console.log("Payload:", payload);
             fetch('http://localhost:5270/api/videodownload/downloadMp4', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ videoUrl: videoUrl })
+                body: payload
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('Response status:', response.status);
+                        console.error('Response status text:', response.statusText);
+                        return response.json().then(errorData => {
+                            console.error('Error details:', errorData);
+                            throw new Error('Network response was not ok');
+                        });
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    console.log('MP4 download started:', data);
                     alert('MP4 download started: ' + data);
                 })
                 .catch(error => {
