@@ -26,6 +26,10 @@ builder.Services.AddCors(options =>
                           .AllowAnyMethod()
                           .AllowAnyHeader());
 });
+builder.Logging.ClearProviders(); // Optional: Clears all default providers.
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
