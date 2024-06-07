@@ -363,3 +363,4 @@ MigrationBackup/
 FodyWeavers.xsd
 
 MusicPlayerWebApp/appsettings.json
+MediaService/appsettings.json

@@ -25,7 +25,7 @@
     <div>
         <h3 class="video-title"><a href="@ViewBag.VideoUrl" target="_blank">@ViewBag.Title</a></h3>
         <!-- <a href="@ViewBag.VideoUrl" target="_blank"><img src="@ViewBag.ThumbnailUrl" alt="Video Thumbnail" class="video-thumbnail"></a> -->
-        <div id="player"></div>
+        <div id="player" data-video-url="@ViewBag.VideoUrl"></div>
         <script>
             console.log("Creating YouTube API script tag");
             var tag = document.createElement('script');
@@ -64,17 +64,22 @@
             <div id="videoSlider"></div>
             <p>Start: <span id="startLabel">0:00</span> | End: <span id="endLabel">0:00</span></p>
         </div>
+        <button id="download-mp3" class="btn btn-success" onclick="downloadMp3()">Download MP3</button>
+        <button id="download-mp4" class="btn btn-primary" onclick="downloadMp4()">Download MP4</button>
         <p class="video-description">@ViewBag.Description</p>
         <button class="btn btn-primary toggle-description">Show More</button>
         <p>Views: @ViewBag.Views | Posted: @ViewBag.PublishedAt</p>
         <h4>Channel: <a href="@ViewBag.ChannelUrl" target="_blank">@ViewBag.ChannelTitle</a></h4>
         <img src="@ViewBag.ChannelIcon" alt="Channel Icon" style="width: 50px; height: 50px;">
+
+        
         <p>Subscribers: @ViewBag.Subscribers</p>
     </div>
 }
 
 @section Scripts {
     <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <script>
         var player;
 
@@ -183,6 +188,70 @@
             if (monitorInterval) {
                 clearInterval(monitorInterval);
             }
+        }
+
+        function downloadMp4() {
+            var videoUrl = document.getElementById('player').getAttribute('data-video-url');
+            console.log("Downloading MP4 for URL:", videoUrl);
+            var payload = JSON.stringify({ videoUrl: videoUrl });
+            console.log("Payload:", payload);
+            fetch('http://localhost:5270/api/videodownload/downloadMp4', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: payload
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('Response status:', response.status);
+                        console.error('Response status text:', response.statusText);
+                        return response.json().then(errorData => {
+                            console.error('Error details:', errorData);
+                            throw new Error('Network response was not ok');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('MP4 download started:', data);
+                    alert('MP4 download started: ' + data);
+                })
+                .catch(error => {
+                    console.error('Error: ', error);
+                });
+        }
+
+        function downloadMp3() {
+            var videoUrl = document.getElementById('player').getAttribute('data-video-url');
+            console.log("Downloading MP3 for URL:", videoUrl);
+            var payload = JSON.stringify({ videoUrl: videoUrl });
+            console.log("Payload:", payload);
+            fetch('http://localhost:5270/api/videodownload/downloadMp3', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: payload
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('Response status:', response.status);
+                        console.error('Response status text:', response.statusText);
+                        return response.json().then(errorData => {
+                            console.error('Error details:', errorData);
+                            throw new Error('Network response was not ok');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('MP3 download started:', data);
+                    alert('MP3 download started: ' + data);
+                })
+                .catch(error => {
+                    console.error('Error: ', error);
+                });
         }
     </script>
 }
