@@ -7,30 +7,56 @@ namespace MediaService.Services
     {
         public async Task<string> DownloadVideoAsync(string videoUrl)
         {
-            // we'll need to change the output path to be using S3
-            string filename = $"{Guid.NewGuid()}.mp4";
-            string outputPath = Path.Combine("D:\\Sayeed\\Downloads", filename);
+            string bucketName = "videodownloader-dev-2024";
+            string keyName = $"{Guid.NewGuid()}.mp4";
+            string awsCliCommand = $"aws s3 cp - s3://{bucketName}/{keyName}";
+
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "yt-dlp",
-                    Arguments = $"{videoUrl} -o {outputPath}",
+                    Arguments = $"{videoUrl} -o -",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true,
                 }
             };
-            process.Start();
-            await process.WaitForExitAsync();
 
-            if (process.ExitCode == 0)
+            var uploadProcess = new Process
             {
-                return outputPath; // Return the path of the downloaded file
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/c {awsCliCommand}",
+                    RedirectStandardInput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                }
+            };
+
+            process.Start();
+            uploadProcess.Start();
+
+            using (var outputStream = process.StandardOutput.BaseStream)
+            using (var inputStream = uploadProcess.StandardInput.BaseStream)
+            {
+                await outputStream.CopyToAsync(inputStream);
+                inputStream.Close();
+
+            }
+
+
+            process.WaitForExit();
+            uploadProcess.WaitForExit();
+
+            if (process.ExitCode == 0 && uploadProcess.ExitCode == 0)
+            {
+                return keyName; // Return the S3 key
             }
             else
             {
-                throw new Exception("Failed to download video.");
+                throw new Exception("Failed to download or upload video.");
             }
         }
 
