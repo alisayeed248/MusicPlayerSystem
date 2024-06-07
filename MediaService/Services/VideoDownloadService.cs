@@ -7,6 +7,7 @@ namespace MediaService.Services
     {
         public async Task<string> DownloadVideoAsync(string videoUrl)
         {
+            Console.Write("here");
             string bucketName = "videodownloader-dev-2024";
             string keyName = $"{Guid.NewGuid()}.mp4";
             string awsCliCommand = $"aws s3 cp - s3://{bucketName}/{keyName}";
@@ -46,7 +47,6 @@ namespace MediaService.Services
 
             }
 
-
             process.WaitForExit();
             uploadProcess.WaitForExit();
 
@@ -62,31 +62,56 @@ namespace MediaService.Services
 
         public async Task<string> ConvertToMp3Async(string videoUrl)
         {
-            string filename = $"{Guid.NewGuid()}.mp3";
-            string outputPath = Path.Combine("D:\\Sayeed\\Downloads", filename);
+            Console.Write("here");
+            string bucketName = "videodownloader-dev-2024";
+            string keyName = $"{Guid.NewGuid()}.mp3";
+            string awsCliCommand = $"aws s3 cp - s3://{bucketName}/{keyName}";
+
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = "yt-dlp",
-                    Arguments = $"{videoUrl} --extract-audio --audio-format mp3 -o {outputPath}",
+                    Arguments = $"{videoUrl} --extract-audio --audio-format mp3 -o -",
                     RedirectStandardOutput = true,
                     UseShellExecute = false,
                     CreateNoWindow = true,
                 }
             };
-            process.Start();
-            string standardOutput = await process.StandardOutput.ReadToEndAsync();
-            string standardError = await process.StandardError.ReadToEndAsync();
-            await process.WaitForExitAsync();
 
-            if (process.ExitCode == 0)
+            var uploadProcess = new Process
             {
-                return outputPath;
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = "cmd.exe",
+                    Arguments = $"/c {awsCliCommand}",
+                    RedirectStandardInput = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                }
+            };
+
+            process.Start();
+            uploadProcess.Start();
+
+            using (var outputStream = process.StandardOutput.BaseStream)
+            using (var inputStream = uploadProcess.StandardInput.BaseStream)
+            {
+                await outputStream.CopyToAsync(inputStream);
+                inputStream.Close();
+
+            }
+
+            process.WaitForExit();
+            uploadProcess.WaitForExit();
+
+            if (process.ExitCode == 0 && uploadProcess.ExitCode == 0)
+            {
+                return keyName;
             }
             else
             {
-                throw new Exception($"Failed to convert video to MP3. Error: {standardError}");
+                throw new Exception($"Failed to convert video to MP3.");
             }
         }
     }

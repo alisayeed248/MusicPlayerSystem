@@ -221,6 +221,38 @@
                     console.error('Error: ', error);
                 });
         }
+
+        function downloadMp3() {
+            var videoUrl = document.getElementById('player').getAttribute('data-video-url');
+            console.log("Downloading MP3 for URL:", videoUrl);
+            var payload = JSON.stringify({ videoUrl: videoUrl });
+            console.log("Payload:", payload);
+            fetch('http://localhost:5270/api/videodownload/downloadMp3', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: payload
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('Response status:', response.status);
+                        console.error('Response status text:', response.statusText);
+                        return response.json().then(errorData => {
+                            console.error('Error details:', errorData);
+                            throw new Error('Network response was not ok');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('MP3 download started:', data);
+                    alert('MP3 download started: ' + data);
+                })
+                .catch(error => {
+                    console.error('Error: ', error);
+                });
+        }
     </script>
 }
 
