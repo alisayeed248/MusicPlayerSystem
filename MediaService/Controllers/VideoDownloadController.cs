@@ -17,8 +17,8 @@ namespace MediaService.Controllers
             _videoDownloadService = videoDownloadService;
         }
 
-        [HttpPost("download")]
-        public async Task<IActionResult> DownloadVideo([FromBody] VideoDownloadRequest request)
+        [HttpPost("downloadMp4")]
+        public async Task<IActionResult> DownloadMp4([FromBody] VideoDownloadRequest request)
         {
             try
             {
@@ -26,6 +26,20 @@ namespace MediaService.Controllers
                 return Ok(filePath);
             }
             catch(System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("downloadMp3")]
+        public async Task<IActionResult> DownloadMp3([FromBody] VideoDownloadRequest request)
+        {
+            try
+            {
+                var filePath = await _videoDownloadService.ConvertToMp3Async(request.VideoUrl);
+                return Ok(filePath);
+            }
+            catch (System.Exception ex)
             {
                 return BadRequest(ex.Message);
             }

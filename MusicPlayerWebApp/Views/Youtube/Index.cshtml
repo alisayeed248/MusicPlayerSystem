@@ -64,11 +64,15 @@
             <div id="videoSlider"></div>
             <p>Start: <span id="startLabel">0:00</span> | End: <span id="endLabel">0:00</span></p>
         </div>
+        <button id="download-mp3" class="btn btn-success" onclick="downloadMp3()">Download MP3</button>
+        <button id="download-mp4" class="btn btn-primary" onclick="downloadMp4()">Download MP4</button>
         <p class="video-description">@ViewBag.Description</p>
         <button class="btn btn-primary toggle-description">Show More</button>
         <p>Views: @ViewBag.Views | Posted: @ViewBag.PublishedAt</p>
         <h4>Channel: <a href="@ViewBag.ChannelUrl" target="_blank">@ViewBag.ChannelTitle</a></h4>
         <img src="@ViewBag.ChannelIcon" alt="Channel Icon" style="width: 50px; height: 50px;">
+
+        
         <p>Subscribers: @ViewBag.Subscribers</p>
     </div>
 }
