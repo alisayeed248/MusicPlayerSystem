@@ -52,11 +52,16 @@
             function onPlayerReady(event) {
                 console.log("Player Ready");
                 event.target.playVideo();
+                initializeSliders();
             }
 
             function onPlayerStateChange(event) {
                 console.log("Player State Changed", event.data);
                 if (event.data == YT.PlayerState.PLAYING) {
+                    startMonitoring();
+                }
+                else {
+                    stopMonitoring();
                 }
             }
         </script>
@@ -93,16 +98,14 @@
                     $('#startLabel').text(formatTime(ui.values[0]));
                     $('#endLabel').text(formatTime(ui.values[1]));
 
-                    var currentTime = player.getCurrentTime();
-
-                    if (ui.handleIndex === 0) {
-                        if (currentTime < ui.values[0]) {
-                            player.seekTo(ui.values[0], true);
-                        }
-                    } else if (ui.handleIndex === 1) {
-                        if (currentTime > ui.values[1]) {
-                            player.seekTo(ui.values[0], true);
-                        }
+                    if (event.handleIndex === 0) {
+                        player.seekTo(ui.values[0], true);
+                    }
+                },
+                change: function (event, ui) {
+                    // Seek video to new start position if start handle is changed
+                    if (event.handleIndex === 0) {
+                        player.seekTo(ui.values[0], true);
                     }
                 }
             });
@@ -168,6 +171,9 @@
             if (event.data == YT.PlayerState.PLAYING) {
                 startMonitoring();
             }
+            else {
+                stopMonitoring();
+            }
         }
 
         var monitorInterval;
@@ -177,11 +183,15 @@
             }
             monitorInterval = setInterval(function () {
                 var currentTime = player.getCurrentTime();
+                var startTime = $("#videoSlider").slider("values")[0];
                 var endTime = $("#videoSlider").slider("values")[1];
-                if (currentTime >= endTime) {
-                    player.seekTo($("#videoSlider").slider("values")[0], true);
+                if (currentTime < startTime) {
+                    player.seekTo(startTime, true);
                 }
-            }, 1000);
+                if (currentTime >= endTime) {
+                    player.seekTo(startTime, true);
+                }
+            }, 500);
         }
 
         function stopMonitoring() {
