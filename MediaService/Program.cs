@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MediaService.Services;
 using Microsoft.Extensions.Options;
+using Amazon.S3;
 
 var builder = WebApplication.CreateBuilder(args);
 var httpsPort = builder.Configuration.GetValue<int?>("ASPNETCORE_HTTPS_PORT");
@@ -14,6 +15,7 @@ var httpsPort = builder.Configuration.GetValue<int?>("ASPNETCORE_HTTPS_PORT");
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddAWSService<IAmazonS3>(builder.Configuration.GetAWSOptions());
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

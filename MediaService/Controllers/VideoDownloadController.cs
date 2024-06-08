@@ -72,8 +72,9 @@ namespace MediaService.Controllers
             {
                 _logger.LogInformation($"Attempting to convert video to MP3 from URL: {request.VideoUrl}");
                 var keyName = await _videoDownloadService.ConvertToMp3Async(request.VideoUrl);
+                var presignedUrl = _videoDownloadService.GeneratePreSignedURL("videodownloader-dev-2024", keyName, 24);
                 _logger.LogInformation($"Video downloaded successfully, file path: {keyName}");
-                return Ok(new { keyName });
+                return Ok(new { url = presignedUrl });
             }
             catch (System.Exception ex)
             {
