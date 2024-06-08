@@ -39,9 +39,10 @@ namespace MediaService.Controllers
             try
             {
                 _logger.LogInformation($"Attempting to download video from URL: {request.VideoUrl}");
-                var filePath = await _videoDownloadService.DownloadVideoAsync(request.VideoUrl);
-                _logger.LogInformation($"Video downloaded successfully, file path: {filePath}");
-                return Ok(new { filePath });
+                var keyName = await _videoDownloadService.DownloadVideoAsync(request.VideoUrl);
+                var presignedUrl = _videoDownloadService.GeneratePreSignedURL("videodownloader-dev-2024", keyName, 24);
+                _logger.LogInformation($"Video downloaded successfully, file path: {keyName}");
+                return Ok(new { url = presignedUrl });
             }
 
             catch(System.Exception ex)

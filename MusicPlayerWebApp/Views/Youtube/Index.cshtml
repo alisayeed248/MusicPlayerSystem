@@ -224,8 +224,18 @@
                     return response.json();
                 })
                 .then(data => {
-                    console.log('MP4 download started:', data);
-                    alert('MP4 download started: ' + data);
+                    if (data.url) {
+                        const link = document.createElement('a');
+                        link.href = data.url;
+                        link.setAttribute('download', '');
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        console.log('MP4 download initiated:', data.url);
+                    } else {
+                        console.log('MP4 download started:', data);
+                        alert('MP4 download started: ' + data);
+                    }
                 })
                 .catch(error => {
                     console.error('Error: ', error);
