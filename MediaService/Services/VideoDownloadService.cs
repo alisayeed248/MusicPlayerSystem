@@ -1,10 +1,18 @@
-﻿using System.Diagnostics;
+﻿using Amazon.S3;
+using Amazon.S3.Model;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace MediaService.Services
 {
     public class VideoDownloadService
     {
+        private readonly IAmazonS3 _s3Client;
+        
+        public VideoDownloadService(IAmazonS3 s3Client)
+        {
+            _s3Client = s3Client;
+        }
         public async Task<string> DownloadVideoAsync(string videoUrl)
         {
             Console.Write("here");
@@ -112,6 +120,29 @@ namespace MediaService.Services
             else
             {
                 throw new Exception($"Failed to convert video to MP3.");
+            }
+        }
+
+        public string GeneratePreSignedURL(string bucketName, string objectKey, double durationHours)
+        {
+            Console.WriteLine("here");
+            try
+            {
+                var request = new GetPreSignedUrlRequest
+                {
+                    BucketName = bucketName,
+                    Key = objectKey,
+                    Expires = DateTime.UtcNow.AddHours(durationHours),
+                    Verb = HttpVerb.GET
+                };
+                var url = _s3Client.GetPreSignedURL(request);
+                Console.WriteLine($"Generated URL: {url}");  // Ensure this URL is logged
+                return url;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error generating presigned URL: {ex.Message}");
+                throw;  // Rethrow the exception to handle it further up the stack
             }
         }
     }
